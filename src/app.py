@@ -13,11 +13,14 @@ def signup_for_activity(activity_name: str, email: str):
     activity = activities[activity_name]
 
     with lock:
+        # Normalize email to avoid duplicates due to case sensitivity or extra spaces
+        normalized_email = email.strip().lower()
+
         # Check if the student is already registered
-        if email in activity["participants"]:
+        if normalized_email in map(str.lower, map(str.strip, activity["participants"])):
             raise HTTPException(status_code=400, detail="Student already registered for this activity")
 
         # Add student
-        activity["participants"].append(email)
+        activity["participants"].append(normalized_email)
 
     return {"message": f"Signed up {email} for {activity_name}"}
